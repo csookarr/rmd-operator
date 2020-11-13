@@ -3,10 +3,12 @@ package rmdnodestate
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	intelv1alpha1 "github.com/intel/rmd-operator/pkg/apis/intel/v1alpha1"
 	"github.com/intel/rmd-operator/pkg/rmd"
+	"github.com/intel/rmd-operator/pkg/state"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -95,11 +97,25 @@ func (r *ReconcileRmdNodeState) Reconcile(request reconcile.Request) (reconcile.
 	// Fetch the RmdNodeState instance
 	rmdNodeState := &intelv1alpha1.RmdNodeState{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, rmdNodeState)
+	/*fakeName := types.NamespacedName{
+		Namespace: "default",
+		Name:      "rmd-node-state-example-node-2",
+	}
+	err := r.client.Get(context.TODO(), fakeName, rmdNodeState)*/
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
+			// Remove entry (i.e. state.Delete())
+			nodeName := strings.ReplaceAll(request.Name, "rmd-node-state-", "")
+			//state.UpdateRmdNodeData("example-node-2", "default")
+			//log.Info("Node added in rmdnodestate controller")
+			//nodeName := strings.ReplaceAll(fakeName.Name, "rmd-node-state-", "")
+			state.DeleteRmdNodeData(nodeName, request.Namespace)
+			//state.DeleteRmdNodeData(nodeName, fakeName.Namespace)
+			log.Info("Delete function run. Success!")
+
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.

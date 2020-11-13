@@ -5,6 +5,7 @@ import (
 	"fmt"
 	intelv1alpha1 "github.com/intel/rmd-operator/pkg/apis/intel/v1alpha1"
 	rmd "github.com/intel/rmd-operator/pkg/rmd"
+	"github.com/intel/rmd-operator/pkg/state"
 	"io/ioutil"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -52,6 +53,7 @@ func Add(mgr manager.Manager) error {
 }
 
 // newReconciler returns a new reconcile.Reconciler
+// TODO: get rmdnode state HERE
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	return &ReconcileNode{client: mgr.GetClient(), rmdClient: rmd.NewClient(), scheme: mgr.GetScheme()}
 }
@@ -105,6 +107,7 @@ type ReconcileNode struct {
 	client    client.Client
 	rmdClient rmd.OperatorRmdClient
 	scheme    *runtime.Scheme
+	// TODO: Add state here
 }
 
 // Reconcile reads that state of the cluster for a Node object and makes changes based on the state read
@@ -190,6 +193,15 @@ func (r *ReconcileNode) Reconcile(request reconcile.Request) (reconcile.Result, 
 	if err != nil {
 		return reconcile.Result{}, err
 	}
+	// Update state.NodeStateList
+	state.UpdateRmdNodeData(nodeName, rmdNodeStateNamespacedName.Namespace)
+	log.Info("UPDATE FUNC RUN")
+	state.UpdateRmdNodeData("example-node-1", "default")
+	log.Info("UPDATE FUNC RUN (hard code)")
+
+	//TESTING state.Delete() IN WRONG PLACE
+	//	state.DeleteRmdNodeData("example-node-1", "default")
+	//	log.Info("DELETE FUNC RUN (hard code)")
 
 	// Update NodeStatus Capacity with l3 cache ways
 	err = r.updateNodeStatusCapacity(rmdNode, rmdPodNamespacedName)

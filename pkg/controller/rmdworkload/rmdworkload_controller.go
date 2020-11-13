@@ -7,6 +7,7 @@ import (
 
 	intelv1alpha1 "github.com/intel/rmd-operator/pkg/apis/intel/v1alpha1"
 	rmd "github.com/intel/rmd-operator/pkg/rmd"
+	//"github.com/intel/rmd-operator/pkg/state"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,6 +40,7 @@ func Add(mgr manager.Manager) error {
 }
 
 // newReconciler returns a new reconcile.Reconciler
+// add rmdnodestate HERE
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	return &ReconcileRmdWorkload{client: mgr.GetClient(), rmdClient: rmd.NewClient(), scheme: mgr.GetScheme()}
 }
@@ -80,6 +82,7 @@ type ReconcileRmdWorkload struct {
 	client    client.Client
 	rmdClient rmd.OperatorRmdClient
 	scheme    *runtime.Scheme
+	//stateList state.RmdNodeData
 }
 
 //targetedNodeInfo is returned by r.findTargetedNodes()
@@ -106,6 +109,8 @@ func (r *ReconcileRmdWorkload) Reconcile(request reconcile.Request) (reconcile.R
 	// the deleted RmdWorkload currently exist on and remove accordingly.
 
 	// List RmdNodeStates
+	// THIS WILL BE REMOVED WITH NEW ARCHITECTURE
+	// Instead "r.rmdNodeStates"
 	rmdNodeStates := &intelv1alpha1.RmdNodeStateList{}
 	err := r.client.List(context.TODO(), rmdNodeStates)
 	if err != nil {
