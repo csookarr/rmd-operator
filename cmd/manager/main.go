@@ -14,6 +14,7 @@ import (
 
 	"github.com/intel/rmd-operator/pkg/apis"
 	"github.com/intel/rmd-operator/pkg/controller"
+	"github.com/intel/rmd-operator/pkg/state"
 	"github.com/intel/rmd-operator/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -107,6 +108,9 @@ func main() {
 		log.Error(err, "")
 		os.Exit(1)
 	}
+	// Create new RMD Node Data object
+	state.NewRmdNodeData()
+	log.Info("State func run")
 
 	// Setup all Controllers
 	if err := controller.AddToManager(mgr); err != nil {
